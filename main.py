@@ -24,13 +24,14 @@ async def on_message(message):
                      "content": message.content})
 
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages = messages
-    )
+    async with message.channel.typing():
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages = messages
+        )
 
-    messages.append({"role":"assistant",
-                     "content": response.choices[0]["message"].content})
+        messages.append({"role":"assistant",
+                        "content": response.choices[0]["message"].content})
 
     await message.channel.send(response.choices[0]["message"].content)
 
