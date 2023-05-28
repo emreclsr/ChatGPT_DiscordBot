@@ -48,8 +48,24 @@ async def on_message(message):
 
         # await message.channel.send(response_message)
 
-        send_messages = response_message.split("\n\n")
-        send_messages = [f"```{message}```" for message in send_messages]
+        messages = response_message.split("\n\n")
+        send_messages = []
+        plain_text_message = ""
+        for m in messages:
+            # Check is a code message
+            if m[:3] == "```" or m[-3:] == "```":
+                # Send previous plain text message
+                if plain_text_message != "":
+                    send_messages.append(plain_text_message)
+                    plain_text_message = ""
+                # After that send code message
+                send_messages.append(m)
+            else:
+                plain_text_message += m
+                # Divide message every 1000 characters because od discord message lenght
+                if len(plain_text_message) > 1000:
+                    send_messages.append(plain_text_message)
+                    plain_text_message = ""
 
         logger.debug(f"Message sending.")
         for m in send_messages:
