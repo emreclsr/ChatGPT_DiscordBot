@@ -46,7 +46,7 @@ async def on_message(message):
         messages.append({"role":"assistant",
                         "content": response_message})
 
-        # await message.channel.send(response_message)
+        response_message += f"{response_message}\n\n"
 
         split_response = response_message.split("\n\n")
         send_messages = []
