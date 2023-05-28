@@ -76,8 +76,8 @@ async def on_message(message):
                     plain_text_message = ""
 
         logger.debug(f"Message sending.")
-        for m in send_messages:
-            await message.channel.send(m)
+        for mes in send_messages:
+            await message.channel.send(mes)
 
     if len(messages) > 10:
         del messages[2]
