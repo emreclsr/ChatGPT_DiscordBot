@@ -18,7 +18,8 @@ client = discord.Client(intents=intents)
 
 logger.debug("Discord client set.")
 
-messages = [{"role": "system", "content": "You are ChatGPT."}]
+messages = [{"role": "system", "content": "You are ChatGPT."},
+            {"role": "user", "message": "When replying to me, you should only write messages not exceeding 1500 characters."}]
 
 @client.event
 async def on_message(message):
@@ -46,22 +47,28 @@ async def on_message(message):
         messages.append({"role":"assistant",
                         "content": response_message})
 
-        logger.debug(f"Check response longer than 2000 characters: {len(response_message)}")
+        await message.channel.send(response_message)
 
-        send_messages = []
-        i=0
-        if len(response_message) > 2000:
-            while i<len(response_message):
-                logger.debug(f"Message longer than 2000 characters spliting.")
-                send_messages.append(response_message[i:i+2000])
-                # send_messages.append(" ")
-                i += 2000
-        else:
-            logger.debug(f"Message not longer than 2000 characters.")
-            send_messages.append(response_message)
+    if len(messages) > 10:
+        del messages[2]
+        del messages[3]
 
-        logger.debug(f"Message sending.")
-        for m in send_messages:
-            await message.channel.send(m)
+        # logger.debug(f"Check response longer than 2000 characters: {len(response_message)}")
+        #
+        # send_messages = []
+        # i=0
+        # if len(response_message) > 2000:
+        #    while i<len(response_message):
+        #        logger.debug(f"Message longer than 2000 characters spliting.")
+        #        send_messages.append(response_message[i:i+2000])
+        #        # send_messages.append(" ")
+        #        i += 2000
+        # else:
+        #     logger.debug(f"Message not longer than 2000 characters.")
+        #     send_messages.append(response_message)
+        #
+        # logger.debug(f"Message sending.")
+        # for m in send_messages:
+        #     await message.channel.send(m)
 
 client.run(discord_bot_token)
