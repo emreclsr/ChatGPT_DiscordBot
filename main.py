@@ -51,17 +51,25 @@ async def on_message(message):
         split_response = response_message.split("\n\n")
         send_messages = []
         plain_text_message = ""
+        code_text_message = ""
         for m in split_response:
             # Check is a code message
-            if m[:3] == "```" or m[-3:] == "```":
+            if m[:3] == "```":
                 # Send previous plain text message
                 if plain_text_message != "":
                     send_messages.append(plain_text_message)
                     plain_text_message = ""
-                # After that send code message
-                send_messages.append(m)
+                #
+                code_text_message += f"{m}\n\n"
+            # If code message continues
+            elif code_text_message != "":
+                code_text_message += f"{m}\n\n"
+                # If code message finished
+                if m[-3:] == "```":
+                    send_messages.append(code_text_message)
+                    code_text_message = ""
             else:
-                plain_text_message += m
+                plain_text_message += f"{m}\n\n"
                 # Divide message every 1000 characters because od discord message lenght
                 if len(plain_text_message) > 1000:
                     send_messages.append(plain_text_message)
