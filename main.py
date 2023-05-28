@@ -48,10 +48,10 @@ async def on_message(message):
 
         # await message.channel.send(response_message)
 
-        messages = response_message.split("\n\n")
+        split_response = response_message.split("\n\n")
         send_messages = []
         plain_text_message = ""
-        for m in messages:
+        for m in split_response:
             # Check is a code message
             if m[:3] == "```" or m[-3:] == "```":
                 # Send previous plain text message
