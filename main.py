@@ -18,8 +18,7 @@ client = discord.Client(intents=intents)
 
 logger.debug("Discord client set.")
 
-messages = [{"role": "system", "content": "You are ChatGPT."},
-            {"role": "user", "message": "When replying to me, you should only write messages not exceeding 1500 characters."}]
+messages = [{"role": "system", "content": "You are ChatGPT. When replying to me, you should only write messages not exceeding 1500 characters."}]
 
 @client.event
 async def on_message(message):
