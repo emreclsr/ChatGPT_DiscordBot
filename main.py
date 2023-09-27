@@ -3,10 +3,12 @@ import discord
 import os
 from dotenv import load_dotenv
 from loguru import logger
+from textwrap import wrap
 
 load_dotenv()
 
 discord_bot_token = os.getenv("DISCORD_BOT_TOKEN")
+organizationID = os.getenv("ORGANIZATION_ID")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 logger.debug("Environment loaded.")
@@ -20,15 +22,14 @@ logger.debug("Discord client set.")
 
 messages = [{"role": "system", "content": "You are ChatGPT"}]
 
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
-        logger.debug(f"Message from {message.author}, message: {message}")
+        logger.debug(f"Message from {message.author}")
         return
 
-    logger.debug(f"New message from {message.author}, message: {message}")
-
-    messages.append({"role":"user",
+    messages.append({"role": "user",
                      "content": message.content})
 
     logger.debug("Message sending to ChatGPT.")
@@ -36,52 +37,22 @@ async def on_message(message):
     async with message.channel.typing():
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages = messages
+            messages=messages,
+            organization=organizationID
         )
 
-        logger.debug(f"ChatGPT send the response: {response}")
+        logger.debug(f"ChatGPT send the response")
 
         response_message = response.choices[0]["message"].content
 
-        messages.append({"role":"assistant",
+        messages.append({"role": "assistant",
                         "content": response_message})
 
-        response_message += f"{response_message}\n\n"
-
-        split_response = response_message.split("\n\n")
-        send_messages = []
-        plain_text_message = ""
-        code_text_message = ""
-        for m in split_response:
-            # Check is a code message
-            if m[:3] == "```":
-                # Send previous plain text message
-                if plain_text_message != "":
-                    send_messages.append(plain_text_message)
-                    plain_text_message = ""
-                #
-                code_text_message += f"{m}\n\n"
-            # If code message continues
-            elif code_text_message != "":
-                code_text_message += f"{m}\n\n"
-                # If code message finished
-                if m[-3:] == "```":
-                    send_messages.append(code_text_message)
-                    code_text_message = ""
-            else:
-                plain_text_message += f"{m}\n\n"
-                # Divide message every 1000 characters because od discord message lenght
-                if len(plain_text_message) > 1000:
-                    send_messages.append(plain_text_message)
-                    plain_text_message = ""
+        logger.debug("Message wrapped for sending part by part.")
+        send_messages = wrap(response_message, 1000)
 
         logger.debug(f"Message sending.")
         for mes in send_messages:
             await message.channel.send(mes)
-
-    if len(messages) > 10:
-        del messages[2]
-        del messages[3]
-
 
 client.run(discord_bot_token)
